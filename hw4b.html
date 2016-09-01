@@ -1,0 +1,265 @@
+<html>
+<head>
+<style>
+	#container {
+		margin: auto;
+
+	}
+
+	.square {
+		float: left;
+		width: 100px;
+		height: 100px;
+		border: 3px solid #000000;
+		border-color:#000000;
+		text-align: center;
+		line-height: 100px;
+	}
+</style>
+
+<script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.7.1.min.js"></script>
+<script type="text/javascript">
+
+
+var TicTacToe = {
+
+	winning_squares: [	
+						['0', '1', '2'],
+						['3', '4', '5'],
+						['6', '7', '8'],
+						['0', '3', '6'],
+						['0', '4', '8'],
+						['1', '4', '7'],
+						['2', '5', '8'],
+						['2', '4', '6']
+	],
+
+	init: function() {
+
+		$("#container").html('');
+
+		for (i = 0; i < 9; i++) {
+			$("#container").append("<div id=" + i + " onclick='TicTacToe.clicked(this.id)' class='square'></div>");
+
+			if (((i + 1) % 3) == 0) {
+				$("#container").append("<div style='clear:both;'>");
+			}
+		}
+	},
+
+
+	clicked: function(square_id) {
+		
+		if ("" != $('#' + square_id).html()) {
+			alert("Please click an empty cell");
+			
+		}else{
+			this.x_play(square_id);
+			
+			this.game_status(square_id);
+			
+			
+			setTimeout(function()
+				{TicTacToe.o_play();
+				TicTacToe.game_status(this.o_location);
+							
+			},1000);
+		}
+	},
+	
+	
+	
+	o_play: function(){
+		
+		
+		
+		
+		this.random_index = Math.floor((Math.random() * 9));
+		var i =0;
+		while("" != $('#' + this.random_index).html()){
+			this.random_index = Math.floor((Math.random() * 9));
+			i++;
+			if(i>9){break;}
+			
+		}	
+		
+		this.o_location='';
+		
+		
+		if(TicTacToe.is_o_win()!=null){
+			this.o_location=TicTacToe.is_o_win();
+		}else if(""==$('#4').html()){
+			this.o_location='4';	
+		}else if(TicTacToe.is_x_win()!=null){
+			this.o_location=TicTacToe.is_x_win();		
+		}else{
+			this.o_location=this.random_index;
+		}
+
+		this.player='O';
+
+		$('#' + this.o_location).html(this.player);
+		color = 'red';
+		bgcolor = '#ffb3b3';
+		$('#' + this.o_location).css('color', color);
+		$('#' + this.o_location).css('background-color', bgcolor);
+		$('#' + this.o_location).animate({fontSize:'80px'});
+		
+
+	},
+	
+		 
+		
+	x_play: function(square_id){
+	
+		this.player = 'X';
+			
+				
+		color = 'blue';
+		bgcolor = '#99ccff';
+
+		$('#' + square_id).html(this.player);
+		$('#' + square_id).css('color', color);
+		$('#' + square_id).css('background-color', bgcolor);
+		$('#' + square_id).animate({fontSize:'80px'});
+			
+		
+	},
+	
+	
+	is_x_win: function(){
+		for (k = 0; k < 9; k++){
+			
+			if(""==$('#' + k.toString()).html()){
+				$('#' + k.toString()).html('X');
+				for (i in this.winning_squares) {
+					var squares = this.winning_squares[i];
+					var pattern = '';
+					for (j in squares) {
+						pattern += $('#' + squares[j]).html();
+					}
+					symbol = this.player;
+					if (symbol + symbol + symbol == pattern) {
+							$('#' + k.toString()).html("");				
+							return k.toString();
+					}
+					}
+				$('#' + k.toString()).html("");	
+			}
+		}
+			
+			return null;
+		
+	},
+
+	is_o_win: function(){
+		for (k = 0; k < 9; k++){
+			
+			if(""==$('#' + k.toString()).html()){
+				$('#' + k.toString()).html('O');
+				for (i in this.winning_squares) {
+					var squares = this.winning_squares[i];
+					var pattern = '';
+					for (j in squares) {
+						pattern += $('#' + squares[j]).html();
+					}
+					symbol = 'O';
+					if (symbol + symbol + symbol == pattern) {
+							$('#' + k.toString()).html("");				
+							return k.toString();
+					}
+					}
+				$('#' + k.toString()).html("");	
+			}
+		}
+			
+			return null;
+		
+	},
+
+
+	is_game_won: function(square_id) {
+		
+		var checker = (this.player == 'X')? square_id: this.o_location.toString();
+		
+		for (i in this.winning_squares) {
+			
+			if (jQuery.inArray(checker, TicTacToe.winning_squares[i]) != -1) {
+				//console.log(checker,this.player);
+				var squares = this.winning_squares[i];
+				var pattern = '';
+				for (j in squares) {
+					pattern += $('#' + squares[j]).html();
+				}
+			
+			symbol = this.player;
+			if (symbol + symbol + symbol == pattern) {
+					return true;
+			}
+			}
+		}
+		return false;
+	},
+
+
+	is_game_tied: function() {
+		for (i = 0; i < 9; i++) {
+			if ('' == $('#' + i).html())
+				return false;
+		}
+		return true;
+	},
+
+
+	end_game: function(winner) {
+		
+		if (winner)
+			msg = winner + ' won! Play again?';
+		else
+			msg =  'The game has ended in a tie. Play again?';
+		restart_game = confirm(msg);
+		if (restart_game)
+			location.reload();
+	},
+	
+	game_status:function(square_id){
+		
+		
+		currentplayer = this.player;
+		game_is_won = this.is_game_won(square_id);
+
+		if (game_is_won) {
+			 setTimeout(function(){TicTacToe.end_game(currentplayer);},400);
+			return;
+		}
+			
+		else
+			game_is_tied = this.is_game_tied();
+
+		if (game_is_tied) {
+			setTimeout(function(){TicTacToe.end_game();},400);
+			return;
+		}
+	
+		
+		
+	},
+                                                                                                                                                                                                    		
+		
+	
+};
+
+
+
+
+$(document).ready(function(){
+	TicTacToe.init();
+});
+
+</script>
+</head>
+
+<body>
+<div id="container"></div>
+</body>
+</html>
